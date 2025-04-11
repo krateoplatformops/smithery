@@ -7,9 +7,11 @@ import (
 	"log/slog"
 	"mime"
 	"net/http"
+	"time"
 
 	"github.com/krateoplatformops/crdgen"
 	"github.com/krateoplatformops/smithery/internal/dynamic"
+	"github.com/krateoplatformops/smithery/internal/handlers/util"
 	"github.com/krateoplatformops/smithery/internal/handlers/util/jsonschema"
 	xcontext "github.com/krateoplatformops/snowplow/plumbing/context"
 	"github.com/krateoplatformops/snowplow/plumbing/http/response"
@@ -102,13 +104,22 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 		Verbose:                false,
 	}
 
+	log.Info("generating CRD", slog.String("kind", kind), slog.String("version", version))
+	start := time.Now()
 	res := crdgen.Generate(req.Context(), opts)
 	if res.Err != nil {
-		log.Error("unable to generate CRD", slog.Any("err", err))
+		log.Error("unable to generate CRD", slog.Any("err", res.Err))
 		response.InternalError(wri, err)
 		return
 	}
+	log.Info("CRD successfully generated",
+		slog.String("kind", kind),
+		slog.String("version", version),
+		slog.String("duration", util.ETA(start)),
+	)
 
+	log.Info("applying CRD", slog.String("kind", kind), slog.String("version", version))
+	start = time.Now()
 	dc, err := dynamic.NewClient(nil)
 	if err != nil {
 		log.Error("unable to create dynamic client", slog.Any("err", err))
@@ -137,6 +148,11 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 		response.InternalError(wri, err)
 		return
 	}
+	log.Info("CRD successfully applied",
+		slog.String("kind", kind),
+		slog.String("version", version),
+		slog.String("duration", util.ETA(start)),
+	)
 
 	response.Encode(wri, response.New(http.StatusAccepted, nil))
 }

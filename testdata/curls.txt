@@ -1,9 +1,9 @@
 Generate CRD
 ====================
-curl -v --request POST \
+curl -v --request POST \                            
   -H 'Content-Type: application/json' \
   -d @testdata/widgets.templates.krateo.io_buttons.json \
-  "http://127.0.0.1:30081/forge?version=v1beta1&kind=Button"
+  "http://127.0.0.1:30081/forge"
 
 
 Fetch OpenAPI Schema
