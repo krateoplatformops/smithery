@@ -1,0 +1,80 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This the total new Krateo backend.",
+        "title": "SnowPlow API",
+        "contact": {},
+        "version": "0.1.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/health": {
+            "get": {
+                "description": "Health HealthCheck",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Liveness Endpoint",
+                "operationId": "health",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.serviceInfo"
+                        }
+                    }
+                }
+            }
+        },
+        "/schema": {
+            "get": {
+                "description": "CRD OpenAPI Schema",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Fetch CRD OpenAPI Schema",
+                "operationId": "schema",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "apiVersion",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource name",
+                        "name": "resource",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.serviceInfo": {
+            "type": "object",
+            "properties": {
+                "build": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,64 @@
+{
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "widgetData": {
+            "type": "object",
+            "description": "the data that will be passed to the widget on the frontend",
+            "additionalProperties": false,
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "description": "the label of the button"
+                },
+                "icon": {
+                    "type": "string",
+                    "description": "the icon of the button (font awesome icon name eg: 'fa-inbox')"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "the visual style of the button",
+                    "enum": [
+                        "default",
+                        "text",
+                        "link",
+                        "primary",
+                        "dashed"
+                    ]
+                }
+            }
+        },
+        "apiRef": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "namespace"
+            ]
+        },
+        "widgetDataTemplate": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "forPath": {
+                        "type": "string"
+                    },
+                    "expression": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    },
+    "required": [
+        "widgetData"
+    ]
+}

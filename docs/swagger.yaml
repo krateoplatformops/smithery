@@ -1,0 +1,53 @@
+basePath: /
+definitions:
+  handlers.serviceInfo:
+    properties:
+      build:
+        type: string
+      name:
+        type: string
+      namespace:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: This the total new Krateo backend.
+  title: SnowPlow API
+  version: 0.1.0
+paths:
+  /health:
+    get:
+      description: Health HealthCheck
+      operationId: health
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.serviceInfo'
+      summary: Liveness Endpoint
+  /schema:
+    get:
+      description: CRD OpenAPI Schema
+      operationId: schema
+      parameters:
+      - description: API Version
+        in: query
+        name: apiVersion
+        required: true
+        type: string
+      - description: Resource name
+        in: query
+        name: resource
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: Fetch CRD OpenAPI Schema
+swagger: "2.0"

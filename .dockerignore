@@ -1,0 +1,10 @@
+.git
+.coverage
+.coverage.*
+.env
+.vscode
+.ko.yaml
+
+.github/*
+manifests/
+scripts/
