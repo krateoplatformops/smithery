@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"mime"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/krateoplatformops/crdgen"
@@ -21,10 +22,11 @@ import (
 // @Summary Generate a CRD from a JSON Schema
 // @Description Generate a CRD from a JSON Schema
 // @ID forge
-// @Produce  yaml
 // @Param apiVersion query string true "API Version"
 // @Param resource query string true "Resource name"
-// @Success 200 {object} object
+// @Param apply query bool true "Apply Generated CRD"
+// @Produce      plain
+// @Success      200  {string}  string  "CRD YAML"
 // @Router /forge [get]
 func Forge() http.Handler {
 	return &forgeHandler{}
@@ -51,6 +53,11 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 	if err != nil || mediaType != "application/json" {
 		response.NotAcceptable(wri, fmt.Errorf("invalid media type: %s", mediaType))
 		return
+	}
+
+	apply, err := strconv.ParseBool(req.URL.Query().Get("apply"))
+	if err != nil {
+		apply = true
 	}
 
 	log := xcontext.Logger(req.Context())
@@ -118,43 +125,47 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 		slog.String("duration", util.ETA(start)),
 	)
 
-	log.Info("applying CRD", slog.String("kind", kind), slog.String("version", version))
-	start = time.Now()
-	dc, err := dynamic.NewClient(nil)
-	if err != nil {
-		log.Error("unable to create dynamic client", slog.Any("err", err))
-		response.InternalError(wri, err)
-		return
+	if apply {
+		log.Info("applying CRD", slog.String("kind", kind), slog.String("version", version))
+		start = time.Now()
+		dc, err := dynamic.NewClient(nil)
+		if err != nil {
+			log.Error("unable to create dynamic client", slog.Any("err", err))
+			response.InternalError(wri, err)
+			return
+		}
+
+		uns, err := dc.YAMLBytesToUnstructured(res.Manifest)
+		if err != nil {
+			log.Error("unable to convert CRD data to YAML", slog.Any("err", err))
+			response.InternalError(wri, err)
+			return
+		}
+		uns.SetAPIVersion("apiextensions.k8s.io/v1")
+		uns.SetKind("CustomResourceDefinition")
+
+		_, err = dc.Apply(req.Context(), uns, dynamic.Options{
+			GVR: runtimeschema.GroupVersionResource{
+				Group:    "apiextensions.k8s.io",
+				Version:  "v1",
+				Resource: "customresourcedefinitions",
+			},
+		})
+		if err != nil {
+			log.Error("unable to apply the generated CRD", slog.Any("err", err))
+			response.InternalError(wri, err)
+			return
+		}
+		log.Info("CRD successfully applied",
+			slog.String("kind", kind),
+			slog.String("version", version),
+			slog.String("duration", util.ETA(start)),
+		)
 	}
 
-	uns, err := dc.YAMLBytesToUnstructured(res.Manifest)
-	if err != nil {
-		log.Error("unable to convert CRD data to YAML", slog.Any("err", err))
-		response.InternalError(wri, err)
-		return
-	}
-	uns.SetAPIVersion("apiextensions.k8s.io/v1")
-	uns.SetKind("CustomResourceDefinition")
-
-	_, err = dc.Apply(req.Context(), uns, dynamic.Options{
-		GVR: runtimeschema.GroupVersionResource{
-			Group:    "apiextensions.k8s.io",
-			Version:  "v1",
-			Resource: "customresourcedefinitions",
-		},
-	})
-	if err != nil {
-		log.Error("unable to apply the generated CRD", slog.Any("err", err))
-		response.InternalError(wri, err)
-		return
-	}
-	log.Info("CRD successfully applied",
-		slog.String("kind", kind),
-		slog.String("version", version),
-		slog.String("duration", util.ETA(start)),
-	)
-
-	response.Encode(wri, response.New(http.StatusAccepted, nil))
+	wri.Header().Set("Content-Type", "application/yaml")
+	wri.WriteHeader(http.StatusOK)
+	wri.Write(res.Manifest)
 }
 
 /***************************************/

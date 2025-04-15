@@ -85,6 +85,7 @@ func main() {
 
 	mux.Handle("POST /forge", chain.Then(handlers.Forge()))
 	mux.Handle("GET /schema", chain.Then(handlers.Schema()))
+	mux.Handle("GET /list", chain.Then(handlers.List()))
 
 	ctx, stop := signal.NotifyContext(context.Background(), []os.Signal{
 		os.Interrupt,

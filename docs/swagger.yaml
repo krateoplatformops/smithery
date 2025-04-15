@@ -1,5 +1,18 @@
 basePath: /
 definitions:
+  handlers.info:
+    properties:
+      group:
+        type: string
+      kind:
+        type: string
+      resource:
+        type: string
+      versions:
+        items:
+          type: string
+        type: array
+    type: object
   handlers.serviceInfo:
     properties:
       build:
@@ -9,12 +22,102 @@ definitions:
       namespace:
         type: string
     type: object
+  response.Status:
+    properties:
+      apiVersion:
+        type: string
+      code:
+        description: Suggested HTTP return code for this status, 0 if not set.
+        type: integer
+      kind:
+        type: string
+      message:
+        description: A human-readable description of the status of this operation.
+        type: string
+      reason:
+        allOf:
+        - $ref: '#/definitions/response.StatusReason'
+        description: |-
+          A machine-readable description of why this operation is in the
+          "Failure" status. If this value is empty there
+          is no information available. A Reason clarifies an HTTP status
+          code but does not override it.
+      status:
+        description: |-
+          Status of the operation.
+          One of: "Success" or "Failure".
+        type: string
+    type: object
+  response.StatusReason:
+    enum:
+    - ""
+    - Unauthorized
+    - Forbidden
+    - NotFound
+    - Conflict
+    - Gone
+    - Invalid
+    - Timeout
+    - TooManyRequests
+    - BadRequest
+    - MethodNotAllowed
+    - NotAcceptable
+    - RequestEntityTooLarge
+    - UnsupportedMediaType
+    - InternalError
+    - ServiceUnavailable
+    type: string
+    x-enum-varnames:
+    - StatusReasonUnknown
+    - StatusReasonUnauthorized
+    - StatusReasonForbidden
+    - StatusReasonNotFound
+    - StatusReasonConflict
+    - StatusReasonGone
+    - StatusReasonInvalid
+    - StatusReasonTimeout
+    - StatusReasonTooManyRequests
+    - StatusReasonBadRequest
+    - StatusReasonMethodNotAllowed
+    - StatusReasonNotAcceptable
+    - StatusReasonRequestEntityTooLarge
+    - StatusReasonUnsupportedMediaType
+    - StatusReasonInternalError
+    - StatusReasonServiceUnavailable
 info:
   contact: {}
   description: This the total new Krateo backend.
   title: SnowPlow API
   version: 0.1.0
 paths:
+  /forge:
+    get:
+      description: Generate a CRD from a JSON Schema
+      operationId: forge
+      parameters:
+      - description: API Version
+        in: query
+        name: apiVersion
+        required: true
+        type: string
+      - description: Resource name
+        in: query
+        name: resource
+        required: true
+        type: string
+      - description: Apply Generated CRD
+        in: query
+        name: apply
+        required: true
+        type: boolean
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: CRD YAML
+          schema:
+            type: string
+      summary: Generate a CRD from a JSON Schema
   /health:
     get:
       description: Health HealthCheck
@@ -27,6 +130,34 @@ paths:
           schema:
             $ref: '#/definitions/handlers.serviceInfo'
       summary: Liveness Endpoint
+  /list:
+    get:
+      description: Returns information about Widgets API names
+      operationId: list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.info'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Status'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Status'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Status'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Status'
+      summary: List Endpoint
   /schema:
     get:
       description: CRD OpenAPI Schema
@@ -34,7 +165,7 @@ paths:
       parameters:
       - description: API Version
         in: query
-        name: apiVersion
+        name: version
         required: true
         type: string
       - description: Resource name

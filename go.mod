@@ -4,7 +4,7 @@ go 1.24.1
 
 require (
 	github.com/krateoplatformops/crdgen v0.4.0
-	github.com/krateoplatformops/snowplow v0.0.0-20250411081537-dc20aa23024b
+	github.com/krateoplatformops/snowplow v0.0.0-20250411115958-6096e23c25f8
 	github.com/stretchr/testify v1.10.0
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.8.1

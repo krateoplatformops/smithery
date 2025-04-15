@@ -28,21 +28,29 @@ RUN CGO_ENABLED=0 GO111MODULE=on go build -a -a -ldflags "-X main.Build=${COMMIT
 # ----------------------
 FROM golang:1.24.1-alpine3.21
 
-RUN apk add --no-cache ca-certificates && \
+RUN apk add --no-cache git ca-certificates && \
     adduser -D -u 10001 nonroot
 
 
 ENV TMPDIR=/home/nonroot/smithery/tmp
-ENV GOCACHE=/home/nonroot/smithery/tmp/.cache
+ENV GOCACHE=$TMPDIR/.cache
+ENV GOMODCACHE=$TMPDIR/.modcache
+
+RUN mkdir -p "$TMPDIR" "$TMPDIR/dummy" "$GOCACHE/go-build" "$GOMODCACHE/cache/download" && \
+    chown -R nonroot /home/nonroot && \
+    chmod -R 1777 "$TMPDIR"
+
+USER nonroot
+
+WORKDIR "$TMPDIR/dummy"
+COPY --chown=nonroot:nonroot dummy.go.mod.txt go.mod
+RUN go mod tidy
+
 
 WORKDIR /home/nonroot/smithery
-RUN mkdir -p "$TMPDIR" "$GOCACHE/go-build" && \
-    chown -R nonroot /home/nonroot && \
-    chmod -R 1777 "$GOCACHE"
-
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /bin/server /bin/server
     
-USER nonroot
+
 
 ENTRYPOINT ["/bin/server"]
