@@ -2,21 +2,22 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 
 	"github.com/krateoplatformops/smithery/internal/crds"
-	"github.com/krateoplatformops/smithery/internal/handlers/util"
 	xcontext "github.com/krateoplatformops/snowplow/plumbing/context"
 	"github.com/krateoplatformops/snowplow/plumbing/http/response"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // @Summary Fetch CRD OpenAPI Schema
 // @Description CRD OpenAPI Schema
 // @ID schema
 // @Produce  json
-// @Param apiVersion query string true "API Version"
+// @Param version query string true "API Version"
 // @Param resource query string true "Resource name"
 // @Success 200 {object} object
 // @Router /schema [get]
@@ -31,13 +32,13 @@ type schemaHandler struct{}
 func (r *schemaHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 	log := xcontext.Logger(req.Context())
 
-	gvr, err := util.ParseGVR(req)
+	gvr, err := parseGVR(req)
 	if err != nil {
 		response.BadRequest(wri, err)
 		return
 	}
 	log.Debug("fetching custom resource definition",
-		slog.String("resource", gvr.GroupResource().String()),
+		slog.String("resource", gvr.Resource),
 		slog.String("version", gvr.Version),
 	)
 
@@ -75,4 +76,27 @@ func (r *schemaHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 			slog.String("version", gvr.Version),
 			slog.Any("err", err))
 	}
+}
+
+func parseGVR(req *http.Request) (gvr schema.GroupVersionResource, err error) {
+	ver := req.URL.Query().Get("version")
+	if len(ver) == 0 {
+		err = fmt.Errorf("missing 'version' query parameter")
+		return
+	}
+	api := fmt.Sprintf("%s/%s", widgetsGroup, ver)
+
+	res := req.URL.Query().Get("resource")
+	if len(res) == 0 {
+		err = fmt.Errorf("missing 'resource' query parameter")
+		return
+	}
+
+	gv, err := schema.ParseGroupVersion(api)
+	if err != nil {
+		return gvr, err
+	}
+
+	gvr = gv.WithResource(res)
+	return
 }

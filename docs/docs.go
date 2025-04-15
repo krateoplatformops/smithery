@@ -15,6 +15,47 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/forge": {
+            "get": {
+                "description": "Generate a CRD from a JSON Schema",
+                "produces": [
+                    "text/plain"
+                ],
+                "summary": "Generate a CRD from a JSON Schema",
+                "operationId": "forge",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "API Version",
+                        "name": "apiVersion",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Resource name",
+                        "name": "resource",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Apply Generated CRD",
+                        "name": "apply",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "CRD YAML",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "description": "Health HealthCheck",
@@ -33,6 +74,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/list": {
+            "get": {
+                "description": "Returns information about Widgets API names",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List Endpoint",
+                "operationId": "list",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.info"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.Status"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.Status"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/response.Status"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.Status"
+                        }
+                    }
+                }
+            }
+        },
         "/schema": {
             "get": {
                 "description": "CRD OpenAPI Schema",
@@ -45,7 +128,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "API Version",
-                        "name": "apiVersion",
+                        "name": "version",
                         "in": "query",
                         "required": true
                     },
@@ -69,6 +152,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.info": {
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "type": "string"
+                },
+                "plural": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.serviceInfo": {
             "type": "object",
             "properties": {
@@ -82,6 +176,76 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "response.Status": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "code": {
+                    "description": "Suggested HTTP return code for this status, 0 if not set.",
+                    "type": "integer"
+                },
+                "kind": {
+                    "type": "string"
+                },
+                "message": {
+                    "description": "A human-readable description of the status of this operation.",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "A machine-readable description of why this operation is in the\n\"Failure\" status. If this value is empty there\nis no information available. A Reason clarifies an HTTP status\ncode but does not override it.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.StatusReason"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "Status of the operation.\nOne of: \"Success\" or \"Failure\".",
+                    "type": "string"
+                }
+            }
+        },
+        "response.StatusReason": {
+            "type": "string",
+            "enum": [
+                "",
+                "Unauthorized",
+                "Forbidden",
+                "NotFound",
+                "Conflict",
+                "Gone",
+                "Invalid",
+                "Timeout",
+                "TooManyRequests",
+                "BadRequest",
+                "MethodNotAllowed",
+                "NotAcceptable",
+                "RequestEntityTooLarge",
+                "UnsupportedMediaType",
+                "InternalError",
+                "ServiceUnavailable"
+            ],
+            "x-enum-varnames": [
+                "StatusReasonUnknown",
+                "StatusReasonUnauthorized",
+                "StatusReasonForbidden",
+                "StatusReasonNotFound",
+                "StatusReasonConflict",
+                "StatusReasonGone",
+                "StatusReasonInvalid",
+                "StatusReasonTimeout",
+                "StatusReasonTooManyRequests",
+                "StatusReasonBadRequest",
+                "StatusReasonMethodNotAllowed",
+                "StatusReasonNotAcceptable",
+                "StatusReasonRequestEntityTooLarge",
+                "StatusReasonUnsupportedMediaType",
+                "StatusReasonInternalError",
+                "StatusReasonServiceUnavailable"
+            ]
         }
     }
 }`
