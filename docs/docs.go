@@ -19,7 +19,7 @@ const docTemplate = `{
             "get": {
                 "description": "Generate a CRD from a JSON Schema",
                 "produces": [
-                    "text/plain"
+                    "application/yaml"
                 ],
                 "summary": "Generate a CRD from a JSON Schema",
                 "operationId": "forge",
@@ -155,11 +155,20 @@ const docTemplate = `{
         "handlers.info": {
             "type": "object",
             "properties": {
+                "group": {
+                    "type": "string"
+                },
                 "kind": {
                     "type": "string"
                 },
-                "plural": {
+                "resource": {
                     "type": "string"
+                },
+                "versions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

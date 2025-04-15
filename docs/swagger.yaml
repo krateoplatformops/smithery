@@ -2,10 +2,16 @@ basePath: /
 definitions:
   handlers.info:
     properties:
+      group:
+        type: string
       kind:
         type: string
-      plural:
+      resource:
         type: string
+      versions:
+        items:
+          type: string
+        type: array
     type: object
   handlers.serviceInfo:
     properties:

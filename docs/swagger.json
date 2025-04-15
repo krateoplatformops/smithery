@@ -148,11 +148,20 @@
         "handlers.info": {
             "type": "object",
             "properties": {
+                "group": {
+                    "type": "string"
+                },
                 "kind": {
                     "type": "string"
                 },
-                "plural": {
+                "resource": {
                     "type": "string"
+                },
+                "versions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },

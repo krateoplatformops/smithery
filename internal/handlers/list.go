@@ -11,6 +11,7 @@ import (
 	"github.com/krateoplatformops/snowplow/plumbing/http/response"
 	"github.com/krateoplatformops/snowplow/plumbing/maps"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -81,7 +82,23 @@ func (r *listHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		gv := dynamic.GroupVersion(el.Object)
+		group := ""
+		if val, ok := maps.NestedValue(el.Object, []string{"spec", "group"}); ok {
+			group = val.(string)
+		}
+
+		vers, _, err := unstructured.NestedSlice(el.Object, "spec", "versions")
+		if err != nil {
+			log.Error("unable to fetch spec.versions in CRD")
+			continue
+		}
+		versions := make([]string, 0, len(vers))
+		for _, vv := range vers {
+			ver, _, err := unstructured.NestedString(vv.(map[string]any), "name")
+			if err == nil {
+				versions = append(versions, ver)
+			}
+		}
 
 		plural, ok := names["plural"].(string)
 		if !ok {
@@ -96,8 +113,8 @@ func (r *listHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 		result = append(result, info{
 			Resource: plural,
 			Kind:     kind,
-			Group:    gv.Group,
-			Version:  gv.Version,
+			Group:    group,
+			Versions: versions,
 		})
 	}
 
@@ -119,8 +136,8 @@ func (r *listHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 }
 
 type info struct {
-	Resource string `json:"resource"`
-	Kind     string `json:"kind"`
-	Version  string `json:"version"`
-	Group    string `json:"group"`
+	Resource string   `json:"resource"`
+	Kind     string   `json:"kind"`
+	Versions []string `json:"versions"`
+	Group    string   `json:"group"`
 }
