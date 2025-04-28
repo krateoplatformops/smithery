@@ -48,8 +48,8 @@ spec:
       serviceAccountName: smithery
       containers:
       - name: smithery
-        #image: kind.local/smithery:latest
-        image: smithery:latest
+        image: kind.local/smithery:latest
+        #image: smithery:latest
         imagePullPolicy: Never
         args:
           - --debug=true

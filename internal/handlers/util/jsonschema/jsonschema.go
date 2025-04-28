@@ -64,10 +64,20 @@ func ExtractSpec(in map[string]any) (out map[string]any, err error) {
 		return map[string]any{}, fmt.Errorf("properties.spec not found in JSON schema")
 	}
 
-	// err = insertExtras("metadata.json", res, "properties", "metadata")
-	// if err != nil {
-	// 	return map[string]any{}, err
-	// }
+	err = insertExtras("apiRef.json", res, "properties", "apiRef")
+	if err != nil {
+		return map[string]any{}, err
+	}
+
+	err = insertExtras("widgetDataTemplate.json", res, "properties", "widgetDataTemplate")
+	if err != nil {
+		return map[string]any{}, err
+	}
+
+	err = insertExtras("backendActions.json", res, "properties", "backendActions")
+	if err != nil {
+		return map[string]any{}, err
+	}
 
 	if required, ok := res["required"].([]any); ok {
 		var newRequired []any

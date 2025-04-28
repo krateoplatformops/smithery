@@ -40,35 +40,6 @@
                             ]
                         }
                     }
-                },
-                "apiRef": {
-                    "type": "object",
-                    "properties": {
-                        "name": {
-                            "type": "string"
-                        },
-                        "namespace": {
-                            "type": "string"
-                        }
-                    },
-                    "required": [
-                        "name",
-                        "namespace"
-                    ]
-                },
-                "widgetDataTemplate": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "forPath": {
-                                "type": "string"
-                            },
-                            "expression": {
-                                "type": "string"
-                            }
-                        }
-                    }
                 }
             },
             "required": [
@@ -77,8 +48,8 @@
         }
     },
     "required": [
-      "kind",
-      "spec",
-      "version"
-  ]
+        "kind",
+        "spec",
+        "version"
+    ]
 }
