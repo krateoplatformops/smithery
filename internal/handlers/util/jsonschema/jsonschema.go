@@ -12,6 +12,12 @@ import (
 //go:embed assets/*.json
 var extras embed.FS
 
+const (
+	apiRefKey             = "apiRef"
+	widgetDataTemplateKey = "widgetDataTemplate"
+	backendEndpointsKey   = "backendEndpoints"
+)
+
 func ExtractKindAndVersion(schema map[string]any) (kind, version string, err error) {
 	properties, ok := schema["properties"].(map[string]any)
 	if !ok {
@@ -64,17 +70,17 @@ func ExtractSpec(in map[string]any) (out map[string]any, err error) {
 		return map[string]any{}, fmt.Errorf("properties.spec not found in JSON schema")
 	}
 
-	err = insertExtras("apiRef.json", res, "properties", "apiRef")
+	err = insertExtras(fmt.Sprintf("%s.json", apiRefKey), res, "properties", apiRefKey)
 	if err != nil {
 		return map[string]any{}, err
 	}
 
-	err = insertExtras("widgetDataTemplate.json", res, "properties", "widgetDataTemplate")
+	err = insertExtras(fmt.Sprintf("%s.json", widgetDataTemplateKey), res, "properties", widgetDataTemplateKey)
 	if err != nil {
 		return map[string]any{}, err
 	}
 
-	err = insertExtras("backendActions.json", res, "properties", "backendActions")
+	err = insertExtras(fmt.Sprintf("%s.json", backendEndpointsKey), res, "properties", backendEndpointsKey)
 	if err != nil {
 		return map[string]any{}, err
 	}
