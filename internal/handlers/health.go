@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/krateoplatformops/snowplow/plumbing/env"
-	"github.com/krateoplatformops/snowplow/plumbing/http/response"
-	"github.com/krateoplatformops/snowplow/plumbing/kubeutil"
+	"github.com/krateoplatformops/plumbing/env"
+	"github.com/krateoplatformops/plumbing/http/response"
+	"github.com/krateoplatformops/plumbing/kubeutil"
 	"k8s.io/client-go/rest"
 )
 

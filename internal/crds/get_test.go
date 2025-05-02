@@ -5,13 +5,14 @@ package crds
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/krateoplatformops/snowplow/plumbing/e2e"
-	xenv "github.com/krateoplatformops/snowplow/plumbing/env"
-	"github.com/krateoplatformops/snowplow/plumbing/kubeutil"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/krateoplatformops/plumbing/e2e"
+	xenv "github.com/krateoplatformops/plumbing/env"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
 	"sigs.k8s.io/e2e-framework/klient/decoder"
@@ -90,10 +91,7 @@ func resolveCRD(name, version string) func(ctx context.Context, t *testing.T, c 
 
 		obj := unstructured.Unstructured{}
 		obj.SetUnstructuredContent(crd)
-		err = kubeutil.ToYAML(os.Stderr, &obj)
-		if err != nil {
-			t.Fatal(err)
-		}
+		fmt.Fprintln(os.Stderr, spew.Sdump(&obj))
 
 		return ctx
 	}

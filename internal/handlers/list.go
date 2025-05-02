@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"net/http"
 
+	xcontext "github.com/krateoplatformops/plumbing/context"
+	"github.com/krateoplatformops/plumbing/http/response"
+	"github.com/krateoplatformops/plumbing/maps"
 	"github.com/krateoplatformops/smithery/internal/dynamic"
-	xcontext "github.com/krateoplatformops/snowplow/plumbing/context"
-	"github.com/krateoplatformops/snowplow/plumbing/http/response"
-	"github.com/krateoplatformops/snowplow/plumbing/maps"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/krateoplatformops/snowplow/plumbing/maps"
+	"github.com/krateoplatformops/plumbing/maps"
 )
 
 //go:embed assets/*.json
@@ -15,7 +15,7 @@ var extras embed.FS
 const (
 	apiRefKey             = "apiRef"
 	widgetDataTemplateKey = "widgetDataTemplate"
-	backendEndpointsKey   = "backendEndpoints"
+	resourcesRefsKey      = "resourcesRefs"
 )
 
 func ExtractKindAndVersion(schema map[string]any) (kind, version string, err error) {
@@ -80,7 +80,7 @@ func ExtractSpec(in map[string]any) (out map[string]any, err error) {
 		return map[string]any{}, err
 	}
 
-	err = insertExtras(fmt.Sprintf("%s.json", backendEndpointsKey), res, "properties", backendEndpointsKey)
+	err = insertExtras(fmt.Sprintf("%s.json", resourcesRefsKey), res, "properties", resourcesRefsKey)
 	if err != nil {
 		return map[string]any{}, err
 	}

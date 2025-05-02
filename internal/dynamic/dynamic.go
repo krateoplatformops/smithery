@@ -7,7 +7,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 
-	xenv "github.com/krateoplatformops/snowplow/plumbing/env"
+	xenv "github.com/krateoplatformops/plumbing/env"
 	"k8s.io/client-go/discovery"
 	memory "k8s.io/client-go/discovery/cached"
 	cacheddiscovery "k8s.io/client-go/discovery/cached/memory"

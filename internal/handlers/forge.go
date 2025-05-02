@@ -11,11 +11,11 @@ import (
 	"time"
 
 	"github.com/krateoplatformops/crdgen"
+	xcontext "github.com/krateoplatformops/plumbing/context"
+	"github.com/krateoplatformops/plumbing/http/response"
 	"github.com/krateoplatformops/smithery/internal/dynamic"
 	"github.com/krateoplatformops/smithery/internal/handlers/util"
 	"github.com/krateoplatformops/smithery/internal/handlers/util/jsonschema"
-	xcontext "github.com/krateoplatformops/snowplow/plumbing/context"
-	"github.com/krateoplatformops/snowplow/plumbing/http/response"
 	runtimeschema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
