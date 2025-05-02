@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/krateoplatformops/snowplow/plumbing/env"
+	"github.com/krateoplatformops/plumbing/env"
 	"k8s.io/client-go/rest"
 )
 
