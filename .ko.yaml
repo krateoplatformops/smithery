@@ -6,4 +6,4 @@ builds:
   - -s -w
   - -extldflags "-static"
   - -X main.build={{.Git.ShortCommit}}
-defaultBaseImage: golang:1.24.1-alpine3.21
+defaultBaseImage: golang:1.24.2-alpine3.21
