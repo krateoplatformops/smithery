@@ -13,9 +13,10 @@ import (
 var extras embed.FS
 
 const (
-	apiRefKey             = "apiRef"
-	widgetDataTemplateKey = "widgetDataTemplate"
-	resourcesRefsKey      = "resourcesRefs"
+	apiRefKey                = "apiRef"
+	widgetDataTemplateKey    = "widgetDataTemplate"
+	resourcesRefsKey         = "resourcesRefs"
+	resourcesRefsTemplateKey = "resourcesRefsTemplate"
 )
 
 func ExtractKindAndVersion(schema map[string]any) (kind, version string, err error) {
@@ -81,6 +82,11 @@ func ExtractSpec(in map[string]any) (out map[string]any, err error) {
 	}
 
 	err = insertExtras(fmt.Sprintf("%s.json", resourcesRefsKey), res, "properties", resourcesRefsKey)
+	if err != nil {
+		return map[string]any{}, err
+	}
+
+	err = insertExtras(fmt.Sprintf("%s.json", resourcesRefsTemplateKey), res, "properties", resourcesRefsTemplateKey)
 	if err != nil {
 		return map[string]any{}, err
 	}

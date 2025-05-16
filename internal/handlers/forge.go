@@ -106,12 +106,14 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 			Version: version,
 			Kind:    kind,
 		},
+		Categories:             []string{"widgets", "krateo"},
 		SpecJsonSchemaGetter:   fromBytes(dat),
 		StatusJsonSchemaGetter: fromBytes([]byte(preserveUnknownFields)),
 		Verbose:                false,
 	}
 
 	log.Info("generating CRD", slog.String("kind", kind), slog.String("version", version))
+
 	start := time.Now()
 	res := crdgen.Generate(req.Context(), opts)
 	if res.Err != nil {
