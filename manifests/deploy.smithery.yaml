@@ -48,13 +48,14 @@ spec:
       serviceAccountName: smithery
       containers:
       - name: smithery
-        image: kind.local/smithery:latest
-        #image: smithery:latest
+        #image: kind.local/smithery:latest
+        image: smithery:latest
         imagePullPolicy: Never
         args:
           - --debug=true
           - --port=8081
           - --authn-namespace=demo-system
+          - --jwt-sign-key=AbbraCadabbra
         ports:
         - name: http
           containerPort: 8081

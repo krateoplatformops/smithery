@@ -2,6 +2,7 @@
 
 ```sh 
 curl -v --request POST \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H 'Content-Type: application/json' \
   -d @testdata/widgets.templates.krateo.io_buttons.json \
   "http://127.0.0.1:30081/forge?apply=true"
@@ -10,7 +11,9 @@ curl -v --request POST \
 ## List all Widgets 
 
 ```sh 
-curl -v --request GET "http://127.0.0.1:30081/list"
+curl -v --request GET \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  "http://127.0.0.1:30081/list"
 ```
 
 ```json
@@ -29,7 +32,15 @@ curl -v --request GET "http://127.0.0.1:30081/list"
 ## Fetch OpenAPI Schema
 
 ```sh 
-curl -v -G GET -d 'version=v1beta1' -d 'resource=buttons' "http://127.0.0.1:30081/schema"
+curl -v -G GET \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -d 'version=v1beta1' \
+  -d 'resource=buttons' \
+  "http://127.0.0.1:30081/schema"
 ```
 
+## Health endpoint
 
+```sh
+curl "http://127.0.0.1:30081/health"
+```

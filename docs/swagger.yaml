@@ -87,8 +87,8 @@ definitions:
 info:
   contact: {}
   description: This the total new Krateo backend.
-  title: SnowPlow API
-  version: 0.1.0
+  title: Smithery API
+  version: 0.6.0
 paths:
   /forge:
     get:
@@ -117,6 +117,8 @@ paths:
           description: CRD YAML
           schema:
             type: string
+      security:
+      - Bearer: []
       summary: Generate a CRD from a JSON Schema
   /health:
     get:
@@ -157,6 +159,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/response.Status'
+      security:
+      - Bearer: []
       summary: List Endpoint
   /schema:
     get:
@@ -180,5 +184,13 @@ paths:
           description: OK
           schema:
             type: object
+      security:
+      - Bearer: []
       summary: Fetch CRD OpenAPI Schema
+securityDefinitions:
+  Bearer:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

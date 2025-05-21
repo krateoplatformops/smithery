@@ -17,9 +17,14 @@ const docTemplate = `{
     "paths": {
         "/forge": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Generate a CRD from a JSON Schema",
                 "produces": [
-                    "application/yaml"
+                    "text/plain"
                 ],
                 "summary": "Generate a CRD from a JSON Schema",
                 "operationId": "forge",
@@ -76,6 +81,11 @@ const docTemplate = `{
         },
         "/list": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Returns information about Widgets API names",
                 "produces": [
                     "application/json"
@@ -118,6 +128,11 @@ const docTemplate = `{
         },
         "/schema": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "CRD OpenAPI Schema",
                 "produces": [
                     "application/json"
@@ -256,19 +271,29 @@ const docTemplate = `{
                 "StatusReasonServiceUnavailable"
             ]
         }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.1.0",
+	Version:          "0.6.0",
 	Host:             "",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "SnowPlow API",
+	Title:            "Smithery API",
 	Description:      "This the total new Krateo backend.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
