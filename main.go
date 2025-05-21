@@ -24,7 +24,7 @@ import (
 )
 
 const (
-	serviceName = "snowplow"
+	serviceName = "smithery"
 )
 
 var (
