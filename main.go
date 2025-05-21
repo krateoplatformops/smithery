@@ -31,16 +31,21 @@ var (
 	build string
 )
 
-// @title SnowPlow API
-// @version 0.1.0
+// @title Smithery API
+// @version 0.6.0
 // @description This the total new Krateo backend.
 // @BasePath /
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 func main() {
 	debugOn := flag.Bool("debug", env.Bool("DEBUG", false), "enable or disable debug logs")
 	blizzardOn := flag.Bool("blizzard", env.Bool("BLIZZARD", false), "dump verbose output")
 	port := flag.Int("port", env.ServicePort("PORT", 8081), "port to listen on")
 	authnNS := flag.String("authn-namespace", env.String("AUTHN_NAMESPACE", ""),
 		"krateo authn service clientconfig secrets namespace")
+	signKey := flag.String("jwt-sign-key", env.String("JWT_SIGN_KEY", ""), "secret key used to sign JWT tokens")
 
 	flag.Usage = func() {
 		fmt.Fprintln(flag.CommandLine.Output(), "Flags:")
@@ -78,14 +83,16 @@ func main() {
 		use.Logger(log),
 	)
 
+	ext := use.NewChain(use.UserConfig(*signKey, *authnNS))
+
 	mux := http.NewServeMux()
 
 	mux.Handle("GET /swagger/", httpSwagger.WrapHandler)
 	mux.Handle("GET /health", handlers.HealthCheck(serviceName, build, kubeutil.ServiceAccountNamespace))
 
-	mux.Handle("POST /forge", chain.Then(handlers.Forge()))
-	mux.Handle("GET /schema", chain.Then(handlers.Schema()))
-	mux.Handle("GET /list", chain.Then(handlers.List()))
+	mux.Handle("POST /forge", chain.Extend(ext).Then(handlers.Forge()))
+	mux.Handle("GET /schema", chain.Extend(ext).Then(handlers.Schema()))
+	mux.Handle("GET /list", chain.Extend(ext).Then(handlers.List()))
 
 	ctx, stop := signal.NotifyContext(context.Background(), []os.Signal{
 		os.Interrupt,

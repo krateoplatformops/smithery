@@ -8,6 +8,7 @@ import (
 
 	xcontext "github.com/krateoplatformops/plumbing/context"
 	"github.com/krateoplatformops/plumbing/http/response"
+	"github.com/krateoplatformops/plumbing/kubeconfig"
 	"github.com/krateoplatformops/plumbing/maps"
 	"github.com/krateoplatformops/smithery/internal/dynamic"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -38,11 +39,25 @@ type listHandler struct {
 // @Failure 404 {object} response.Status
 // @Failure 500 {object} response.Status
 // @Router /list [get]
+// @Security Bearer
 func (r *listHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
-
 	log := xcontext.Logger(req.Context())
 
-	cli, err := dynamic.NewClient(nil)
+	ep, err := xcontext.UserConfig(req.Context())
+	if err != nil {
+		log.Error("unable to get user endpoint", slog.Any("err", err))
+		response.Unauthorized(wri, err)
+		return
+	}
+
+	rc, err := kubeconfig.NewClientConfig(req.Context(), ep)
+	if err != nil {
+		log.Error("unable to create kubernetes client config", slog.Any("err", err))
+		response.InternalError(wri, err)
+		return
+	}
+
+	cli, err := dynamic.NewClient(rc)
 	if err != nil {
 		log.Error("unable to create dynamic client", slog.Any("err", err))
 		response.InternalError(wri, err)

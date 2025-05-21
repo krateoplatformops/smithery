@@ -2,14 +2,19 @@
     "swagger": "2.0",
     "info": {
         "description": "This the total new Krateo backend.",
-        "title": "SnowPlow API",
+        "title": "Smithery API",
         "contact": {},
-        "version": "0.1.0"
+        "version": "0.6.0"
     },
     "basePath": "/",
     "paths": {
         "/forge": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Generate a CRD from a JSON Schema",
                 "produces": [
                     "text/plain"
@@ -69,6 +74,11 @@
         },
         "/list": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "Returns information about Widgets API names",
                 "produces": [
                     "application/json"
@@ -111,6 +121,11 @@
         },
         "/schema": {
             "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
                 "description": "CRD OpenAPI Schema",
                 "produces": [
                     "application/json"
@@ -248,6 +263,14 @@
                 "StatusReasonInternalError",
                 "StatusReasonServiceUnavailable"
             ]
+        }
+    },
+    "securityDefinitions": {
+        "Bearer": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

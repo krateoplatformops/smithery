@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,6 +14,7 @@ import (
 	"github.com/krateoplatformops/crdgen"
 	xcontext "github.com/krateoplatformops/plumbing/context"
 	"github.com/krateoplatformops/plumbing/http/response"
+	"github.com/krateoplatformops/plumbing/kubeconfig"
 	"github.com/krateoplatformops/smithery/internal/dynamic"
 	"github.com/krateoplatformops/smithery/internal/handlers/util"
 	"github.com/krateoplatformops/smithery/internal/handlers/util/jsonschema"
@@ -28,6 +30,7 @@ import (
 // @Produce      plain
 // @Success      200  {string}  string  "CRD YAML"
 // @Router /forge [get]
+// @Security Bearer
 func Forge() http.Handler {
 	return &forgeHandler{}
 }
@@ -60,8 +63,6 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 		apply = true
 	}
 
-	log := xcontext.Logger(req.Context())
-
 	src := map[string]any{}
 	decoder := json.NewDecoder(req.Body)
 	if err := decoder.Decode(&src); err != nil {
@@ -75,27 +76,19 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 
 	kind, version, err := jsonschema.ExtractKindAndVersion(src)
 	if err != nil {
-		log.Error("unable to extract kind and version from JSON Schema", slog.Any("err", err))
-		response.BadRequest(wri, err)
+		response.BadRequest(wri, fmt.Errorf("unable to extract kind and version from JSON Schema: %w", err))
 		return
 	}
 
-	log.Debug("extracted Kind and Version from JSON Schema",
-		slog.String("kind", kind),
-		slog.String("version", version),
-	)
-
 	spec, err := jsonschema.ExtractSpec(src)
 	if err != nil {
-		log.Error("unable to extract spec from JSON Schema", slog.Any("err", err))
-		response.BadRequest(wri, err)
+		response.BadRequest(wri, fmt.Errorf("unable to extract spec from JSON Schema: %w", err))
 		return
 	}
 
 	dat, err := json.Marshal(spec)
 	if err != nil {
-		log.Error("unable to convert extracted spec to JSON", slog.Any("err", err))
-		response.InternalError(wri, err)
+		response.InternalError(wri, fmt.Errorf("unable to convert extracted spec to JSON: %w", err))
 		return
 	}
 
@@ -112,62 +105,75 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 		Verbose:                false,
 	}
 
-	log.Info("generating CRD", slog.String("kind", kind), slog.String("version", version))
+	log := xcontext.Logger(req.Context()).
+		With(
+			slog.Group("widget",
+				slog.String("kind", kind),
+				slog.String("version", version),
+			),
+		)
+
+	log.Info("generating CRD")
 
 	start := time.Now()
 	res := crdgen.Generate(req.Context(), opts)
 	if res.Err != nil {
 		log.Error("unable to generate CRD", slog.Any("err", res.Err))
-		response.InternalError(wri, err)
+		response.InternalError(wri, fmt.Errorf("unable to generate CRD: %w", err))
 		return
 	}
-	log.Info("CRD successfully generated",
-		slog.String("kind", kind),
-		slog.String("version", version),
-		slog.String("duration", util.ETA(start)),
-	)
+
+	log.Info("CRD successfully generated", slog.String("duration", util.ETA(start)))
 
 	if apply {
-		log.Info("applying CRD", slog.String("kind", kind), slog.String("version", version))
+		log.Info("applying CRD")
 		start = time.Now()
-		dc, err := dynamic.NewClient(nil)
+
+		err := r.applyCRD(req.Context(), res.Manifest)
 		if err != nil {
-			log.Error("unable to create dynamic client", slog.Any("err", err))
-			response.InternalError(wri, err)
+			response.Unauthorized(wri, err)
 			return
 		}
 
-		uns, err := dc.YAMLBytesToUnstructured(res.Manifest)
-		if err != nil {
-			log.Error("unable to convert CRD data to YAML", slog.Any("err", err))
-			response.InternalError(wri, err)
-			return
-		}
-		uns.SetAPIVersion("apiextensions.k8s.io/v1")
-		uns.SetKind("CustomResourceDefinition")
-
-		_, err = dc.Apply(req.Context(), uns, dynamic.Options{
-			GVR: runtimeschema.GroupVersionResource{
-				Group:    "apiextensions.k8s.io",
-				Version:  "v1",
-				Resource: "customresourcedefinitions",
-			},
-		})
-		if err != nil {
-			log.Error("unable to apply the generated CRD", slog.Any("err", err))
-			response.InternalError(wri, err)
-			return
-		}
-		log.Info("CRD successfully applied",
-			slog.String("kind", kind),
-			slog.String("version", version),
-			slog.String("duration", util.ETA(start)),
-		)
+		log.Info("CRD successfully applied", slog.String("duration", util.ETA(start)))
 	}
 
 	wri.Header().Set("Content-Type", "application/yaml")
 	wri.WriteHeader(http.StatusOK)
 	wri.Write(res.Manifest)
+}
+
+func (r *forgeHandler) applyCRD(ctx context.Context, crd []byte) error {
+	ep, err := xcontext.UserConfig(ctx)
+	if err != nil {
+		return fmt.Errorf("unable to get user endpoint: %w", err)
+	}
+
+	rc, err := kubeconfig.NewClientConfig(ctx, ep)
+	if err != nil {
+		return fmt.Errorf("unable to create kubernetes client config: %w", err)
+	}
+
+	dc, err := dynamic.NewClient(rc)
+	if err != nil {
+		return err
+	}
+
+	uns, err := dc.YAMLBytesToUnstructured(crd)
+	if err != nil {
+		return err
+	}
+	uns.SetAPIVersion("apiextensions.k8s.io/v1")
+	uns.SetKind("CustomResourceDefinition")
+
+	_, err = dc.Apply(ctx, uns, dynamic.Options{
+		GVR: runtimeschema.GroupVersionResource{
+			Group:    "apiextensions.k8s.io",
+			Version:  "v1",
+			Resource: "customresourcedefinitions",
+		},
+	})
+	return err
 }
 
 /***************************************/
