@@ -1,0 +1,59 @@
+@startuml "smithery-workflow"
+
+left to right direction
+
+skinparam dpi 140
+skinparam defaultFontName "Courier New"
+skinparam defaultFontSize 12
+skinparam titleFontSize 24
+skinparam titleFontColor gray
+
+skinparam packageStyle rectangle
+skinparam actorStyle hollow
+
+' SHAPE settings
+skinparam usecase {
+  BackgroundColor #f9f9f9
+  BorderColor black
+  RoundCorner 0
+}
+
+skinparam rectangle {
+  BorderThickness 2
+  BackgroundColor White
+  BorderColor Black
+  RoundCorner 8
+}
+
+title "Smithery Workflow Diagram"
+
+actor "Frontend Developer" as FD
+
+usecase "Design the Widget\nproperties" as UC1
+usecase "Define JSONSchema\nfor widgetData" as UC2
+usecase "Sumbmit JSONSchema\nto Smithery" as UC3
+
+FD -r-> UC1: 1
+FD -u-> UC2: 2
+FD -u-> UC3: 3
+
+rectangle "<size:18><b>Smithery Web Service</b></size>" {
+  usecase "Parses and validates\nthe user-defined JSONSchema" as SUC1
+  usecase "Injects additional schema\nsectionsthat enable\nruntime logic, templating\nand remote interactions" as SUC2
+  usecase "Generate the CRD from\nthe enriched JSONSchema" as SUC3
+  usecase "Outputs a complete CRD\nthat is Kubernetes-compatible" as SUC4
+  'usecase "Optionally, apply the generated\nCRD to Kubernetes" as SUC5
+
+  UC3 -l-> SUC1 
+  SUC1 -r-> SUC2
+  SUC2 --> SUC3
+  SUC3 -l-> SUC4
+  SUC4 .u.>FD
+}
+
+rectangle "<size:18><b>Kubernetes Api Server</b></size>" {
+  usecase "Optionally, apply the generated\nCRD to Kubernetes" as SUC5
+
+  SUC4 ..> SUC5
+}
+@enduml
