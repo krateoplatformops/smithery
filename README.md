@@ -38,6 +38,7 @@ Before generating the CRD, Smithery automatically injects the following three JS
 | `apiRef`             | object | Defines a [**RESTAction**](https://github.com/krateoplatformops/snowplow/blob/main/RESTAction.md) that acts as a data source. The response (JSON) will be available for JQ expression resolution in templates.           |
 | `widgetDataTemplate` | object | A **template layer** on top of `widgetData` using **JQ expressions**. These are evaluated at runtime by Snowplow, with data from `apiRef`. |
 | `resourcesRefs`      | object | Describes a set of **runtime actions** (e.g., REST operations) triggered by the component (e.g., onClick for a button).                    |
+| `resourcesRefsTemplate`  | object | Describes one or more templates to generate set of **runtime actions** (e.g., REST operations) triggered by the component (e.g., onClick for a button).                    |
 
 > These sections are located in the Smithery repo under [`/assets`](https://github.com/krateoplatformops/smithery/tree/main/internal/handlers/util/jsonschema/assets).
 
@@ -77,6 +78,16 @@ Filling a widget fields with data from an external remote HTTP service (or inter
 **Example Use Case:**
 
 When a button is clicked, send a `POST` request to submit form data to an external API (or to Kubernetes API Server).
+
+---
+
+### `resourcesRefsTemplate` – Declarative Actions Templates
+
+* Located at: [`resourcesRefs.json`](https://github.com/krateoplatformops/smithery/blob/main/internal/handlers/util/jsonschema/assets/resourcesRefsTemplate.json)
+
+* Allows for the definition of one or more templates to dynamically generate `resourcesRefs` objects. In this context, "dynamically" means that the properties (i.e., their values) are the results of JQ expressions evaluated against the output obtained from a previous resolution of an `apiRef`.
+
+This mechanism enables the flexible and automated creation of resource references based on dynamic data, facilitating more adaptable and efficient workflows.
 
 ---
 
