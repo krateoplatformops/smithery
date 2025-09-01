@@ -2,7 +2,7 @@
 
 ```sh 
 curl -v --request POST \
-  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Authorization: Bearer ${KRATEO_TOKEN}" \
   -H 'Content-Type: application/json' \
   -d @testdata/widgets.templates.krateo.io_buttons.json \
   "http://127.0.0.1:30081/forge?apply=true"
@@ -12,7 +12,7 @@ curl -v --request POST \
 
 ```sh 
 curl -v --request GET \
-  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Authorization: Bearer ${KRATEO_TOKEN}" \
   "http://127.0.0.1:30081/list"
 ```
 
@@ -33,7 +33,7 @@ curl -v --request GET \
 
 ```sh 
 curl -v -G GET \
-  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Authorization: Bearer ${KRATEO_TOKEN}" \
   -d 'version=v1beta1' \
   -d 'resource=buttons' \
   "http://127.0.0.1:30081/schema"
