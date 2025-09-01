@@ -80,10 +80,24 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	allowedResources, err := jsonschema.ExtractAllowedResources(src)
+	if err != nil {
+		response.BadRequest(wri, fmt.Errorf("unable to extract allowedResources from JSON Schema: %w", err))
+		return
+	}
+
 	spec, err := jsonschema.ExtractSpec(src)
 	if err != nil {
 		response.BadRequest(wri, fmt.Errorf("unable to extract spec from JSON Schema: %w", err))
 		return
+	}
+
+	if len(allowedResources) > 0 {
+		err = jsonschema.SetAllowedResources(spec, allowedResources)
+		if err != nil {
+			response.InternalError(wri, fmt.Errorf("unable to inject allowed resources into JSON Schema: %W", err))
+			return
+		}
 	}
 
 	dat, err := json.Marshal(spec)

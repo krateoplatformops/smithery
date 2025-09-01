@@ -20,6 +20,14 @@
                     "description": "the data that will be passed to the widget on the frontend",
                     "additionalProperties": false,
                     "properties": {
+                        "allowedResources": {
+                            "type": "string",
+                            "enum": [
+                                "AAA",
+                                "BBB",
+                                "CCC"
+                            ]
+                        },
                         "label": {
                             "type": "string",
                             "description": "the label of the button"
