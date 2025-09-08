@@ -1,6 +1,6 @@
 # Build environment
 # -----------------
-FROM golang:1.24.2-alpine3.21 AS builder
+FROM golang:1.25.0-alpine3.21 AS builder
 LABEL stage=builder
 
 RUN apk add --no-cache ca-certificates git tzdata bash openssl
@@ -26,7 +26,7 @@ RUN CGO_ENABLED=0 GO111MODULE=on go build -a -a -ldflags "-X main.Build=${COMMIT
 
 # Deployment environment
 # ----------------------
-FROM golang:1.24.2-alpine3.21
+FROM golang:1.25.0-alpine3.21
 
 RUN apk add --no-cache git ca-certificates && \
     adduser -D -u 10001 nonroot
