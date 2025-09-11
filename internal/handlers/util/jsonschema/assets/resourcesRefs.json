@@ -1,7 +1,7 @@
 {
     "type": "object",
     "properties": {
-        "_slice_": {
+        "slice": {
             "type": "object",
             "properties": {
                 "offset": {
@@ -54,6 +54,27 @@
                     },
                     "payload": {
                         "type": "object"
+                    },
+                    "slice": {
+                        "type": "object",
+                        "properties": {
+                            "offset": {
+                                "type": "integer"
+                            },
+                            "page": {
+                                "type": "integer"
+                            },
+                            "perPage": {
+                                "type": "integer"
+                            },
+                            "continue": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "page",
+                            "perPage"
+                        ]
                     }
                 },
                 "required": [
