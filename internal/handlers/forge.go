@@ -12,12 +12,12 @@ import (
 	"time"
 
 	"github.com/krateoplatformops/crdgen"
+	"github.com/krateoplatformops/krateoctl/jsonschema"
 	xcontext "github.com/krateoplatformops/plumbing/context"
 	"github.com/krateoplatformops/plumbing/http/response"
 	"github.com/krateoplatformops/plumbing/kubeconfig"
 	"github.com/krateoplatformops/smithery/internal/dynamic"
 	"github.com/krateoplatformops/smithery/internal/handlers/util"
-	"github.com/krateoplatformops/smithery/internal/handlers/util/jsonschema"
 	runtimeschema "k8s.io/apimachinery/pkg/runtime/schema"
 )
 
