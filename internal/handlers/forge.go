@@ -36,7 +36,7 @@ func Forge() http.Handler {
 }
 
 const (
-	maxBodySize           = 100 * 1024
+	//maxBodySize           = 100 * 1024
 	widgetsGroup          = "widgets.templates.krateo.io"
 	preserveUnknownFields = `{"type": "object", "additionalProperties": true,"x-kubernetes-preserve-unknown-fields": true}`
 )
