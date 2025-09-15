@@ -40,7 +40,6 @@ func HealthCheck(serviceName, build string, nsgetter func() (string, error)) htt
 		wri.Header().Set("Content-Type", "application/json")
 		wri.WriteHeader(http.StatusOK)
 		json.NewEncoder(wri).Encode(data)
-		return
 	}
 }
 

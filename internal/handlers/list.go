@@ -20,10 +20,6 @@ func List() http.Handler {
 	return &listHandler{}
 }
 
-const (
-	groupVersion = "apiextensions.k8s.io/v1"
-)
-
 var _ http.Handler = (*listHandler)(nil)
 
 type listHandler struct {

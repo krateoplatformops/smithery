@@ -5,7 +5,8 @@ go 1.25.0
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/krateoplatformops/crdgen v0.5.0
-	github.com/krateoplatformops/plumbing v0.5.1
+	github.com/krateoplatformops/krateoctl v0.6.3
+	github.com/krateoplatformops/plumbing v0.6.0
 	github.com/stretchr/testify v1.10.0
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.4

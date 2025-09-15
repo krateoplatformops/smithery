@@ -7,11 +7,7 @@ import (
 	"testing"
 
 	"github.com/krateoplatformops/plumbing/env"
-	"k8s.io/client-go/rest"
 )
-
-// Mock di `rest.InClusterConfig`
-var mockInClusterConfig func() (*rest.Config, error)
 
 func mockNSGetter() (string, error) {
 	return "test-namespace", nil
