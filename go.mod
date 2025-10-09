@@ -4,10 +4,10 @@ go 1.25.0
 
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
-	github.com/krateoplatformops/crdgen v0.5.0
+	github.com/krateoplatformops/crdgen/v2 v2.0.0-20251009064032-b346ad4cd845
 	github.com/krateoplatformops/krateoctl v0.6.3
-	github.com/krateoplatformops/plumbing v0.6.0
-	github.com/stretchr/testify v1.10.0
+	github.com/krateoplatformops/plumbing v0.7.2
+	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/swaggo/swag v1.16.4
 	k8s.io/apiextensions-apiserver v0.33.0
@@ -18,12 +18,12 @@ require (
 
 require (
 	cel.dev/expr v0.19.1 // indirect
+	dario.cat/mergo v1.0.2 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/dave/jennifer v1.7.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.11.0 // indirect
 	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
