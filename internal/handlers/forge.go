@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/krateoplatformops/crdgen"
+	"github.com/krateoplatformops/crdgen/v2"
 	"github.com/krateoplatformops/krateoctl/jsonschema"
 	xcontext "github.com/krateoplatformops/plumbing/context"
 	"github.com/krateoplatformops/plumbing/http/response"
@@ -107,16 +107,12 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 	}
 
 	opts := crdgen.Options{
-		WorkDir: "widgets",
-		GVK: runtimeschema.GroupVersionKind{
-			Group:   widgetsGroup,
-			Version: version,
-			Kind:    kind,
-		},
-		Categories:             []string{"widgets", "krateo"},
-		SpecJsonSchemaGetter:   fromBytes(dat),
-		StatusJsonSchemaGetter: fromBytes([]byte(preserveUnknownFields)),
-		Verbose:                false,
+		Group:        widgetsGroup,
+		Version:      version,
+		Kind:         kind,
+		Categories:   []string{"widgets", "krateo"},
+		SpecSchema:   []byte(dat),
+		StatusSchema: []byte(preserveUnknownFields),
 	}
 
 	log := xcontext.Logger(req.Context()).
@@ -130,9 +126,9 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 	log.Info("generating CRD")
 
 	start := time.Now()
-	res := crdgen.Generate(req.Context(), opts)
-	if res.Err != nil {
-		log.Error("unable to generate CRD", slog.Any("err", res.Err))
+	res, err := crdgen.Generate(opts)
+	if err != nil {
+		log.Error("unable to generate CRD", slog.Any("err", err))
 		response.InternalError(wri, fmt.Errorf("unable to generate CRD: %w", err))
 		return
 	}
@@ -143,7 +139,7 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 		log.Info("applying CRD")
 		start = time.Now()
 
-		err := r.applyCRD(req.Context(), res.Manifest)
+		err := r.applyCRD(req.Context(), res)
 		if err != nil {
 			response.Unauthorized(wri, err)
 			return
@@ -154,7 +150,7 @@ func (r *forgeHandler) ServeHTTP(wri http.ResponseWriter, req *http.Request) {
 
 	wri.Header().Set("Content-Type", "application/yaml")
 	wri.WriteHeader(http.StatusOK)
-	wri.Write(res.Manifest)
+	wri.Write(res)
 }
 
 func (r *forgeHandler) applyCRD(ctx context.Context, crd []byte) error {
@@ -188,23 +184,4 @@ func (r *forgeHandler) applyCRD(ctx context.Context, crd []byte) error {
 		},
 	})
 	return err
-}
-
-/***************************************/
-/* Custom crdgen.JsonSchemaGetter      */
-/***************************************/
-func fromBytes(data []byte) crdgen.JsonSchemaGetter {
-	return &bytesJsonSchemaGetter{
-		data: data,
-	}
-}
-
-var _ crdgen.JsonSchemaGetter = (*bytesJsonSchemaGetter)(nil)
-
-type bytesJsonSchemaGetter struct {
-	data []byte
-}
-
-func (sg *bytesJsonSchemaGetter) Get() ([]byte, error) {
-	return sg.data, nil
 }
